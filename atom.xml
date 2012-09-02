@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Python Life]]></title>
-  <link href="http://127.0.0.1:4000/atom.xml" rel="self"/>
-  <link href="http://127.0.0.1:4000/"/>
-  <updated>2012-09-02T22:19:04+08:00</updated>
-  <id>http://127.0.0.1:4000/</id>
+  <link href="http://python-life.com/atom.xml" rel="self"/>
+  <link href="http://python-life.com/"/>
+  <updated>2012-09-02T23:05:30+08:00</updated>
+  <id>http://python-life.com/</id>
   <author>
     <name><![CDATA[Jone Wang]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[利用django的模板模块生成静态页面]]></title>
-    <link href="http://127.0.0.1:4000/blog/2012/06/29/use-django-template-module-generate-static-html/"/>
+    <link href="http://python-life.com/blog/2012/06/29/use-django-template-module-generate-static-html/"/>
     <updated>2012-06-29T20:47:00+08:00</updated>
-    <id>http://127.0.0.1:4000/blog/2012/06/29/use-django-template-module-generate-static-html</id>
+    <id>http://python-life.com/blog/2012/06/29/use-django-template-module-generate-static-html</id>
     <content type="html"><![CDATA[<p>最近需要生成html版本的统计报表，网上搜了一下，没有太好的解决方案。还有人说直接动态生成页面然后通过http抓取下来。。。天，要不要这么麻烦</p>
 
 <p>后来想到以前用django中的模板语言来构造html页面很方便，可以由django填充完模板后，再将填充好的数据写入至文件中，这样便可以了。其他框架模板模块应该都可以，自己也熟悉django的模板语言，使用起来也会得心应手，然后就随意写了一个，代码如下：</p>
@@ -127,9 +127,9 @@
   
   <entry>
     <title type="html"><![CDATA[安装MySQL的handlersocket插件]]></title>
-    <link href="http://127.0.0.1:4000/blog/2012/06/08/install-handlesocket/"/>
+    <link href="http://python-life.com/blog/2012/06/08/install-handlesocket/"/>
     <updated>2012-06-08T17:55:00+08:00</updated>
-    <id>http://127.0.0.1:4000/blog/2012/06/08/install-handlesocket</id>
+    <id>http://python-life.com/blog/2012/06/08/install-handlesocket</id>
     <content type="html"><![CDATA[<p>本文环境：Ubuntu 11.10 server、已安装mysql-server</p>
 
 <p>用到mysql _ config</p>
@@ -255,9 +255,9 @@
   
   <entry>
     <title type="html"><![CDATA[wp7中修改Panorama的Title字体大小以及样式]]></title>
-    <link href="http://127.0.0.1:4000/blog/2012/04/08/wp7-panorama-title-font-size/"/>
+    <link href="http://python-life.com/blog/2012/04/08/wp7-panorama-title-font-size/"/>
     <updated>2012-04-08T20:53:00+08:00</updated>
-    <id>http://127.0.0.1:4000/blog/2012/04/08/wp7-panorama-title-font-size</id>
+    <id>http://python-life.com/blog/2012/04/08/wp7-panorama-title-font-size</id>
     <content type="html"><![CDATA[<p>在开发windows phone7应用使用“windows phone 全景页面”时，设置Titile属性后的字体感觉过大，超出了屏幕外，个人感觉不太美观</p>
 
 <p>直接设置&lt;controls:Panorama Title=&#8221;爱公交&#8221; FontSize=&#8221;16&#8221;/>是无法修改Panorama的Title字体大小</p>
@@ -287,9 +287,9 @@
   
   <entry>
     <title type="html"><![CDATA[《个人生活管理办法》]]></title>
-    <link href="http://127.0.0.1:4000/blog/2012/03/12/personal-management/"/>
+    <link href="http://python-life.com/blog/2012/03/12/personal-management/"/>
     <updated>2012-03-12T23:43:00+08:00</updated>
-    <id>http://127.0.0.1:4000/blog/2012/03/12/personal-management</id>
+    <id>http://python-life.com/blog/2012/03/12/personal-management</id>
     <content type="html"><![CDATA[<p>5月15日，好吧，我承认，下面的《办法》是不可能的 :(</p>
 
 <hr />
@@ -345,9 +345,9 @@
   
   <entry>
     <title type="html"><![CDATA[cocos2d-xna在使用某些场景转换效果时的问题以及修复]]></title>
-    <link href="http://127.0.0.1:4000/blog/2012/03/11/cocos2d-xna-transition-bug/"/>
+    <link href="http://python-life.com/blog/2012/03/11/cocos2d-xna-transition-bug/"/>
     <updated>2012-03-11T03:04:00+08:00</updated>
-    <id>http://127.0.0.1:4000/blog/2012/03/11/cocos2d-xna-transition-bug</id>
+    <id>http://python-life.com/blog/2012/03/11/cocos2d-xna-transition-bug</id>
     <content type="html"><![CDATA[<p>最近在使用cocos2d-xna时出现了场景切换效果报错的情况，仅仅在某些复杂的效果上，如CCTransitionJumpZoom效果。</p>
 
 <p>由于cocos2d-xna库是要直接把代码都引用进自己的项目的，所以可以直接调试和修改cocos2d-xna源码。</p>
@@ -362,9 +362,9 @@
   
   <entry>
     <title type="html"><![CDATA[一个简单高效的基于内存的计时缓存类]]></title>
-    <link href="http://127.0.0.1:4000/blog/2012/03/07/mycache/"/>
+    <link href="http://python-life.com/blog/2012/03/07/mycache/"/>
     <updated>2012-03-07T23:22:00+08:00</updated>
-    <id>http://127.0.0.1:4000/blog/2012/03/07/mycache</id>
+    <id>http://python-life.com/blog/2012/03/07/mycache</id>
     <content type="html"><![CDATA[<p>最近一段时间在项目中需要用到计时缓存，就是说到一定时间就无法读取的缓存，有点点类似session的过期吧，之前用了beaker，在近期进行性能测试时，发现频繁读取时效率特别低，在大数据量循环读取缓存时，跑100+并发就阻塞了服务器，导致其他连接无法连接。</p>
 
 <p>后来分析了下，是由于beaker采用的是基于文件（文件、数据库…）的方式进行存储数据，python中基于协程、微线程的高效服务器框架中，所有io操作都会阻塞服务器连接。所以建议使用python时尽量使用内存和内存数据库（内存数据可能存在socket通信，会影响性能）存放数据，和减少io操作，对于耗时比较长的io操作，可以开多个进程（指的是运行多个python服务器，通过主服务器请求另一个服务器来执行耗时操作，不影响主服务器性能）。</p>
@@ -498,9 +498,9 @@
   
   <entry>
     <title type="html"><![CDATA[python中数据结构的上遇到的一个问题]]></title>
-    <link href="http://127.0.0.1:4000/blog/2012/03/04/python-type-problem/"/>
+    <link href="http://python-life.com/blog/2012/03/04/python-type-problem/"/>
     <updated>2012-03-04T14:30:00+08:00</updated>
-    <id>http://127.0.0.1:4000/blog/2012/03/04/python-type-problem</id>
+    <id>http://python-life.com/blog/2012/03/04/python-type-problem</id>
     <content type="html"><![CDATA[<p>前几天，在做公司项目时，碰到了一个比较纠结的问题。提出来以免日后再犯同样的错误。</p>
 
 <p>pythoner都应该知道，数据结构类型在对数据操作时，多个数据结构变量如果为同一内存地址，那么修改其中一个变量，会使其他同一内存地址的变量同样发生改变。</p>
@@ -591,9 +591,9 @@
   
   <entry>
     <title type="html"><![CDATA[犹豫]]></title>
-    <link href="http://127.0.0.1:4000/blog/2012/02/12/my-hesitate/"/>
+    <link href="http://python-life.com/blog/2012/02/12/my-hesitate/"/>
     <updated>2012-02-12T22:16:00+08:00</updated>
-    <id>http://127.0.0.1:4000/blog/2012/02/12/my-hesitate</id>
+    <id>http://python-life.com/blog/2012/02/12/my-hesitate</id>
     <content type="html"><![CDATA[<p>今天上午，到机场接了同学，下午一个短信发来，“回电”。</p>
 
 <p>电话过去，依然是几个月前的那个人。朋友给我介绍了个人，对方希望我能给他们做一个网站，元旦前，给我讨论过一些需求，我根据项目开出了一个价格，这个价格对我来说是个有着比较大诱惑的数字，但他们提出的是希望春节前能够完成。我回绝了，因为当时公司也忙的要死，而且我预估的时间是在保证质量的情况下能够完成，不想打一个没有用的包票。后来他们说看其他有没能春节做完的，不行再来找我。</p>
@@ -612,9 +612,9 @@
   
   <entry>
     <title type="html"><![CDATA[对中国计算机教育的看法——兴趣使然]]></title>
-    <link href="http://127.0.0.1:4000/blog/2012/01/07/china-education/"/>
+    <link href="http://python-life.com/blog/2012/01/07/china-education/"/>
     <updated>2012-01-07T22:17:00+08:00</updated>
-    <id>http://127.0.0.1:4000/blog/2012/01/07/china-education</id>
+    <id>http://python-life.com/blog/2012/01/07/china-education</id>
     <content type="html"><![CDATA[<p>今天大学里的一位老师问我在专业课程上的一些问题，主要是想听一下我的意见。这位老师是我在大学的专业课老师，主要也是负责计算机相关专业的教学事宜，并且和我一直保持着联系，之前在学校时她也对教学比较无奈，上了几年课，很多同学对基础的语法都所知甚少。当然不排除学生的个人因素。她也知道在教学上存在比较大的问题，也有心去改变现状。但都没取得比较好的成效。</p>
 
 <p>后来我和她聊到了教学上的problem，她想进行学校里的教学改革。想从我这里得到一些有用的信息，我也提了一些建议。</p>
@@ -648,9 +648,9 @@
   
   <entry>
     <title type="html"><![CDATA[你好世界 hello world]]></title>
-    <link href="http://127.0.0.1:4000/blog/2012/01/07/hello-word/"/>
+    <link href="http://python-life.com/blog/2012/01/07/hello-word/"/>
     <updated>2012-01-07T08:40:00+08:00</updated>
-    <id>http://127.0.0.1:4000/blog/2012/01/07/hello-word</id>
+    <id>http://python-life.com/blog/2012/01/07/hello-word</id>
     <content type="html"><![CDATA[<p>你好世界</p>
 ]]></content>
   </entry>
