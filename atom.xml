@@ -1,0 +1,658 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Python Life]]></title>
+  <link href="http://127.0.0.1:4000/atom.xml" rel="self"/>
+  <link href="http://127.0.0.1:4000/"/>
+  <updated>2012-09-02T22:19:04+08:00</updated>
+  <id>http://127.0.0.1:4000/</id>
+  <author>
+    <name><![CDATA[Jone Wang]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[利用django的模板模块生成静态页面]]></title>
+    <link href="http://127.0.0.1:4000/blog/2012/06/29/use-django-template-module-generate-static-html/"/>
+    <updated>2012-06-29T20:47:00+08:00</updated>
+    <id>http://127.0.0.1:4000/blog/2012/06/29/use-django-template-module-generate-static-html</id>
+    <content type="html"><![CDATA[<p>最近需要生成html版本的统计报表，网上搜了一下，没有太好的解决方案。还有人说直接动态生成页面然后通过http抓取下来。。。天，要不要这么麻烦</p>
+
+<p>后来想到以前用django中的模板语言来构造html页面很方便，可以由django填充完模板后，再将填充好的数据写入至文件中，这样便可以了。其他框架模板模块应该都可以，自己也熟悉django的模板语言，使用起来也会得心应手，然后就随意写了一个，代码如下：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">from</span> <span class="nn">django</span> <span class="kn">import</span> <span class="n">template</span>
+</span><span class='line'><span class="kn">from</span> <span class="nn">django.conf</span> <span class="kn">import</span> <span class="n">settings</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># 绕过DJANGO _ SETTINGS _ MODULE使用django中的模块</span>
+</span><span class='line'><span class="n">django_settings</span><span class="o">.</span><span class="n">configure</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># 你的模板存放位置</span>
+</span><span class='line'><span class="n">TEMPLATE_DIR</span> <span class="o">=</span> <span class="s">&#39;.../templates&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># 你的静态文件存放位置</span>
+</span><span class='line'><span class="n">STATIC_DIR</span> <span class="o">=</span> <span class="s">&#39;.../static&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">generate_html</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+</span><span class='line'>    <span class="sd">&quot;&quot;&quot;</span>
+</span><span class='line'><span class="sd">    读取模板文件，并且填充数据至html</span>
+</span><span class='line'><span class="sd">    在传入data时如同在django中向模板传递参数时一样</span>
+</span><span class='line'><span class="sd">    模板中依然可以使用django中的模板语言来构造页面</span>
+</span><span class='line'>
+</span><span class='line'><span class="sd">    @param filename: 模板文件文件名</span>
+</span><span class='line'><span class="sd">    @param data: 需要填充的数据</span>
+</span><span class='line'><span class="sd">    &quot;&quot;&quot;</span>
+</span><span class='line'>    <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">TEMPLATE_DIR</span> <span class="o">+</span> <span class="s">&#39;/&#39;</span> <span class="o">+</span> <span class="n">filename</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">t</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">Template</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+</span><span class='line'>    <span class="n">c</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">Context</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">t</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">save_html</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">html</span><span class="p">):</span>
+</span><span class='line'>    <span class="sd">&quot;&quot;&quot;</span>
+</span><span class='line'><span class="sd">    保存html到文件</span>
+</span><span class='line'>
+</span><span class='line'><span class="sd">    @param filename: 保存的文件名</span>
+</span><span class='line'><span class="sd">    @param html: html内容</span>
+</span><span class='line'><span class="sd">    &quot;&quot;&quot;</span>
+</span><span class='line'>    <span class="nb">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">STATIC_DIR</span> <span class="o">+</span> <span class="s">&#39;/&#39;</span> <span class="o">+</span> <span class="n">filename</span><span class="p">,</span> <span class="s">&#39;wb+&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="nb">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">html</span><span class="p">)</span>
+</span><span class='line'>    <span class="nb">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="n">__name__</span> <span class="o">=</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+</span><span class='line'>    <span class="sd">&quot;&quot;&quot;</span>
+</span><span class='line'><span class="sd">    使用示例</span>
+</span><span class='line'><span class="sd">    &quot;&quot;&quot;</span>
+</span><span class='line'>    <span class="n">html</span> <span class="o">=</span> <span class="n">generate_html</span><span class="p">(</span><span class="s">&#39;index.html&#39;</span><span class="p">,</span> <span class="p">{</span>
+</span><span class='line'>                        <span class="s">&#39;Title&#39;</span><span class="p">:</span> <span class="s">&#39;首页&#39;</span><span class="p">,</span>
+</span><span class='line'>                        <span class="s">&#39;Data&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
+</span><span class='line'>                        <span class="p">})</span>
+</span><span class='line'>    <span class="c">#解决填充数据后所得到的html中包含中文会报错的问题</span>
+</span><span class='line'>    <span class="n">html</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">save_html</span><span class="p">(</span><span class="s">&#39;index_static.html&#39;</span><span class="p">,</span> <span class="n">html</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>使用上很简单，填充的数据格式和html模板中语法与django中的使用并无二致。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[安装MySQL的handlersocket插件]]></title>
+    <link href="http://127.0.0.1:4000/blog/2012/06/08/install-handlesocket/"/>
+    <updated>2012-06-08T17:55:00+08:00</updated>
+    <id>http://127.0.0.1:4000/blog/2012/06/08/install-handlesocket</id>
+    <content type="html"><![CDATA[<p>本文环境：Ubuntu 11.10 server、已安装mysql-server</p>
+
+<p>用到mysql _ config</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo apt-get install libmysqld-dev
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>已包含libmysqlclient-dev
+下载mysql源码</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo apt-get <span class="nb">source </span>mysql-server
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>安装git工具</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo apt-get install git
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>安装后面的autogen.sh所需程序</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo apt-get install libtool
+</span><span class='line'>sudo apt-get install automake
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>下载handlersocket源码并且编译安装</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>git clone <span class="se">\</span>
+</span><span class='line'>    git://github.com/ahiguti/HandlerSocket-Plugin-for-MySQL.git
+</span><span class='line'><span class="nb">cd </span>HandlerSocket-Plugin-for-MySQL/
+</span><span class='line'>./autogen.sh
+</span><span class='line'>./configure --with-mysql-source<span class="o">=</span>/home/jonewang/mysql-5.1-5.1.62 <span class="se">\</span>
+</span><span class='line'>    --with-mysql-bindir<span class="o">=</span>/usr/bin <span class="se">\</span>
+</span><span class='line'>    --with-mysql-plugindir<span class="o">=</span>/usr/lib/mysql/plugin
+</span><span class='line'>make
+</span><span class='line'>sudo make install
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>./configure参数</p>
+
+<ul>
+<li>with-mysql-source = mysql源码路径</li>
+<li>with-mysql-bindir = msyql_config路径</li>
+<li>with-mysql-plugindir = mysql插件路径</li>
+</ul>
+
+
+<h2>配置mysql</h2>
+
+<p>修改mysql配置</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo vi /etc/mysql/my.cnf
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>文件最后加入</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">loose_handlersocket_port</span> <span class="o">=</span> 9998
+</span><span class='line'><span class="nv">loose_handlersocket_port_wr</span> <span class="o">=</span> 9999
+</span><span class='line'><span class="nv">loose_handlersocket_threads</span> <span class="o">=</span> 16
+</span><span class='line'><span class="nv">loose_handlersocket_threads_wr</span> <span class="o">=</span> 1
+</span><span class='line'><span class="nv">open_files_limit</span> <span class="o">=</span> 65535
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>导入插件至mysql</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>mysql -u root -p
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>mysql&gt; install plugin handlersocket soname <span class="s1">&#39;handlersocket.so&#39;</span>;
+</span><span class='line'>mysql&gt; show plugins;
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo /etc/init.d/mysql restart
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>安装pyhon的handlersocket库</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo easy_install python-handler-socket
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>安装完毕，最后一个步骤可以根据自己身的开发语言来下载相应的支持库</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[wp7中修改Panorama的Title字体大小以及样式]]></title>
+    <link href="http://127.0.0.1:4000/blog/2012/04/08/wp7-panorama-title-font-size/"/>
+    <updated>2012-04-08T20:53:00+08:00</updated>
+    <id>http://127.0.0.1:4000/blog/2012/04/08/wp7-panorama-title-font-size</id>
+    <content type="html"><![CDATA[<p>在开发windows phone7应用使用“windows phone 全景页面”时，设置Titile属性后的字体感觉过大，超出了屏幕外，个人感觉不太美观</p>
+
+<p>直接设置&lt;controls:Panorama Title=&#8221;爱公交&#8221; FontSize=&#8221;16&#8221;/>是无法修改Panorama的Title字体大小</p>
+
+<p>可在&lt;controls:Panorama/>元素内添加以下几行便可，也可修改更多样式</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;controls:Panorama&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;controls:Panorama.Title&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;TextBlock</span> <span class="na">Text=</span><span class="s">&quot;爱公交&quot;</span> <span class="na">FontSize=</span><span class="s">&quot;150&quot;</span> <span class="na">Margin=</span><span class="s">&quot;10,50,40,40&quot;</span>
+</span><span class='line'>                <span class="na">Height=</span><span class="s">&quot;206&quot;</span> <span class="na">Width=</span><span class="s">&quot;491&quot;</span> <span class="na">Foreground=</span><span class="s">&quot;White&quot;</span> <span class="nt">&gt;&lt;/TextBlock&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/controls:Panorama.Title&gt;</span>
+</span><span class='line'>    ....
+</span><span class='line'><span class="nt">&lt;/controls:Panorama&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这样title字体就变得小一点了</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[《个人生活管理办法》]]></title>
+    <link href="http://127.0.0.1:4000/blog/2012/03/12/personal-management/"/>
+    <updated>2012-03-12T23:43:00+08:00</updated>
+    <id>http://127.0.0.1:4000/blog/2012/03/12/personal-management</id>
+    <content type="html"><![CDATA[<p>5月15日，好吧，我承认，下面的《办法》是不可能的 :(</p>
+
+<hr />
+
+<p>最近公司发布了管理办法，惊发现自身作息规律很乱。特此自律，不做屌丝。</p>
+
+<p>为了保证工作更加有效率，为了个人的身心健康，为了迎接更加美好的未来，为了完成自己的人生理想，特制定《个人生活管理办法》。</p>
+
+<p>《个人生活管理办法》：</p>
+
+<p>一、从2012年3月14日开始，本文作者必须强制执行，各位观看此文的同学按需执行，并且从执行日开始无限期执行。</p>
+
+<p>二、每日基本规范：</p>
+
+<ul>
+<li>午休至少半小时。保证下午的精神状态。继续在校期间的午睡习惯。</li>
+<li>加强身体锻炼，周一至周五至少有一天下班后打半小时乒乓球。</li>
+<li>20点之后所有工作内容在大脑中自动屏蔽。</li>
+<li>每日晚20点至21点，出门跑步40分钟至一小时。从工作以来，肚子有肉增多的趋势，要肥胖扼杀在摇篮当中，以免日后追悔莫及。下雨除外。</li>
+<li>21至22点洗澡、查收邮件、查看rss订阅，保证自己充分接收各类科技新闻、主流技术，以及从邮件列表获取最新行业职位状况、技术更新。</li>
+<li>21点至23点期间，与老妈QQ视频聊天或打电话聊天（发现有时打电话更加亲切），缓解思乡思母之情。</li>
+<li>22点之后自己各种爱好：学习研究技术、开发软件、开发站点、开发框架、开发手机游戏、写博文（坚持每星期至少一篇）、看公开课、看各类科技视频（新品开箱、上手评测），坚持自己的私有代码开源（除手机平台）。坚持自己喜欢的事能激发自己对技术的激情，发现长时间没开发点自己的东西，就会整日昏昏沉沉，脑袋就会胡思乱想。期待有一天自己的软件能人尽皆知，自己的博客能门庭若市。</li>
+<li>坚持24点30分前关掉电脑。特殊情况允许延后1～2小时，如特别兴奋、特别投入或自己的东西要上线了。</li>
+</ul>
+
+
+<p>三、周末假日规范：</p>
+
+<ul>
+<li>周末线上工作时间保持在4小时以下。</li>
+<li>周末至少看一篇原创微电影。</li>
+<li>周末中至少择一日下午关掉电脑，关机时间必须大于3小时。</li>
+<li>每周五晚看一集火影忍着或其他动漫（在火影无限回忆坑爹时 :-( ）。</li>
+<li>每周六看一集美剧。</li>
+<li>一个月至少一个周末去电影院看一场电影。保证自己在其他人面前能对各个大片评论自如、吐槽不能，以及向好友感叹imax屏幕之大有机会要去看看，而又一直捂紧口袋。</li>
+<li>一个月至少去一次超市购买零食、生活用品。</li>
+<li>一个月至少网购实体物品一件（手机充值等不算），已保持各类电子商务积分平稳上升，支付宝金会员的保持。</li>
+<li>一个月至少在电脑上看一部好看但未在国内上映的电影。</li>
+</ul>
+
+
+<p>四、冲突：</p>
+
+<ul>
+<li>工作标准时间内，工作内容优先级至高无上，除不可抗拒因素，如，办理某事天朝政府机构周末不上班。</li>
+<li>周末假日规范优先级高于每日基本规范。</li>
+<li>如遇同伙、朋友出去吃吃火锅、参加活动、帮忙等时间消耗较长的事情，每日基本规范优先级则自动降低。</li>
+<li>除2中的情况外，如其他情况导致规范冲突，则被冲突部分将延后执行。如周一其他事情占用了1小时，那么次日将提前一小时执行。</li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[cocos2d-xna在使用某些场景转换效果时的问题以及修复]]></title>
+    <link href="http://127.0.0.1:4000/blog/2012/03/11/cocos2d-xna-transition-bug/"/>
+    <updated>2012-03-11T03:04:00+08:00</updated>
+    <id>http://127.0.0.1:4000/blog/2012/03/11/cocos2d-xna-transition-bug</id>
+    <content type="html"><![CDATA[<p>最近在使用cocos2d-xna时出现了场景切换效果报错的情况，仅仅在某些复杂的效果上，如CCTransitionJumpZoom效果。</p>
+
+<p>由于cocos2d-xna库是要直接把代码都引用进自己的项目的，所以可以直接调试和修改cocos2d-xna源码。</p>
+
+<p>如果在使用场景切换时调试出现代码自动断点，断点的地方应该是在某个文件的initOneTwo函数里，断点位置应该是应该是在这样一个语句的地方Debug.Assert(&#8230;!=null)，如果继续执行，则会出现NullReferenceException异常，通过调用堆栈找到onEnter函数(此函数一般在场景切换效果类里，如CCTransitionJumpZoom.cs)，在onEnter函数里，找到调用的一个actions方法，发现原因是在最后一个参数传入了一个null，删除null就可以解决问题了。</p>
+
+<p>不知道为什么会传入null，没有深究代码，希望各位在使用cocos2s-xna时不要重蹈覆辙。</p>
+
+<p>另外cocos2d-xna确实是个很好的游戏开发库，不过现有的中文资料较少，我最近在用cocos2d-xna写个游戏，可能会写写cocos2s-xna常用的类和函数的使用，对于cocos2d-xna出现不会使用的情况(官方文档写的太简单了&#8230;.也没例子)，建议大家直接搜索cocos2d的iphone和adroid平台的相关资料，调用函数类似，只是语法稍有不同。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[一个简单高效的基于内存的计时缓存类]]></title>
+    <link href="http://127.0.0.1:4000/blog/2012/03/07/mycache/"/>
+    <updated>2012-03-07T23:22:00+08:00</updated>
+    <id>http://127.0.0.1:4000/blog/2012/03/07/mycache</id>
+    <content type="html"><![CDATA[<p>最近一段时间在项目中需要用到计时缓存，就是说到一定时间就无法读取的缓存，有点点类似session的过期吧，之前用了beaker，在近期进行性能测试时，发现频繁读取时效率特别低，在大数据量循环读取缓存时，跑100+并发就阻塞了服务器，导致其他连接无法连接。</p>
+
+<p>后来分析了下，是由于beaker采用的是基于文件（文件、数据库…）的方式进行存储数据，python中基于协程、微线程的高效服务器框架中，所有io操作都会阻塞服务器连接。所以建议使用python时尽量使用内存和内存数据库（内存数据可能存在socket通信，会影响性能）存放数据，和减少io操作，对于耗时比较长的io操作，可以开多个进程（指的是运行多个python服务器，通过主服务器请求另一个服务器来执行耗时操作，不影响主服务器性能）。</p>
+
+<p>由于不会用到特别复杂的功能，就只是用于数据过期，后来直接自己写了个计时缓存类，代码比较简单，也就是通过时间来判断是否过期，由于整个计时缓存数据存放在内存中，在基于协程/微线程的服务器中，对服务器的性能不会有任何影响，非常高效。</p>
+
+<p>代码在此，大家随意使用吧，代码真的很简单&#8230;&#8230;&#8230;&#8230;.</p>
+
+<p>代码：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="c"># coding=utf-8</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">time</span><span class="o">,</span> <span class="nn">datetime</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;JoneWang&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">CacheData</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">Cache</span><span class="p">():</span>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expire</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+</span><span class='line'>        <span class="bp">self</span><span class="o">.</span><span class="n">cache</span> <span class="o">=</span> <span class="n">CacheData</span>
+</span><span class='line'>        <span class="c"># 默认8秒缓存超时</span>
+</span><span class='line'>        <span class="k">if</span> <span class="ow">not</span> <span class="n">expire</span><span class="p">:</span>
+</span><span class='line'>            <span class="n">expire</span> <span class="o">=</span> <span class="mi">8</span>
+</span><span class='line'>        <span class="bp">self</span><span class="o">.</span><span class="n">expire</span> <span class="o">=</span> <span class="n">expire</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+</span><span class='line'>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span class='line'><span class="sd">        写入缓存</span>
+</span><span class='line'><span class="sd">        &quot;&quot;&quot;</span>
+</span><span class='line'>        <span class="n">begin_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="o">*</span><span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">()[:</span><span class="mi">6</span><span class="p">])</span>
+</span><span class='line'>        <span class="n">end_time</span> <span class="o">=</span> <span class="n">begin_time</span> <span class="o">+</span> \
+</span><span class='line'>                   <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">expire</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>            <span class="s">&#39;value&#39;</span><span class="p">:</span> <span class="n">value</span><span class="p">,</span>
+</span><span class='line'>            <span class="s">&#39;begin_time&#39;</span><span class="p">:</span> <span class="n">begin_time</span><span class="p">,</span>
+</span><span class='line'>            <span class="s">&#39;end_time&#39;</span><span class="p">:</span> <span class="n">end_time</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+</span><span class='line'>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span class='line'><span class="sd">        读取缓存</span>
+</span><span class='line'><span class="sd">        &quot;&quot;&quot;</span>
+</span><span class='line'>        <span class="n">now_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="o">*</span><span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">()[:</span><span class="mi">6</span><span class="p">])</span>
+</span><span class='line'>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+</span><span class='line'>            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s">&#39;end_time&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">now_time</span><span class="p">:</span>
+</span><span class='line'>                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s">&#39;value&#39;</span><span class="p">]</span>
+</span><span class='line'>            <span class="k">else</span><span class="p">:</span>
+</span><span class='line'>                <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+</span><span class='line'>                <span class="k">return</span> <span class="bp">None</span>
+</span><span class='line'>        <span class="k">else</span><span class="p">:</span>
+</span><span class='line'>            <span class="k">return</span> <span class="bp">None</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+</span><span class='line'>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span class='line'><span class="sd">        移除缓存</span>
+</span><span class='line'><span class="sd">        &quot;&quot;&quot;</span>
+</span><span class='line'>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+</span><span class='line'>            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">reclock</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+</span><span class='line'>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span class='line'><span class="sd">        重新计时缓存，可传入多个key值</span>
+</span><span class='line'><span class="sd">        &quot;&quot;&quot;</span>
+</span><span class='line'>        <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+</span><span class='line'>            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+</span><span class='line'>            <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>PS：善于使用内存来使服务器达到高性能也是一种艺术，没有什么比操作内存中的数据更快了的。&#8221;&#8217;</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[python中数据结构的上遇到的一个问题]]></title>
+    <link href="http://127.0.0.1:4000/blog/2012/03/04/python-type-problem/"/>
+    <updated>2012-03-04T14:30:00+08:00</updated>
+    <id>http://127.0.0.1:4000/blog/2012/03/04/python-type-problem</id>
+    <content type="html"><![CDATA[<p>前几天，在做公司项目时，碰到了一个比较纠结的问题。提出来以免日后再犯同样的错误。</p>
+
+<p>pythoner都应该知道，数据结构类型在对数据操作时，多个数据结构变量如果为同一内存地址，那么修改其中一个变量，会使其他同一内存地址的变量同样发生改变。</p>
+
+<p>例：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="c"># Filename: test1.py</span>
+</span><span class='line'><span class="n">a</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">]</span>
+</span><span class='line'><span class="n">b</span><span class="o">=</span><span class="n">a</span>
+</span><span class='line'><span class="n">a</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</span><span class='line'><span class="k">print</span> <span class="s">&#39;a =&#39;</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="s">&#39;| b =&#39;</span><span class="p">,</span><span class="n">b</span>
+</span><span class='line'>
+</span><span class='line'><span class="err">$</span> <span class="n">python</span> <span class="n">test</span><span class="o">.</span><span class="n">py</span>
+</span><span class='line'><span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]</span> <span class="o">|</span> <span class="n">b</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>可以看出a发生改变时，b同样也发生了改变。这样在多数情况下比较有好处，因为很多时候把变量交给一个函数处理，而并不需要返回处理后的值，在函数内部的修改会直接反映在传入的变量上。</p>
+
+<p>但如果不想多个数据结构变量使用同一内存地址，可以使用copy.copy()进行拷贝变量。</p>
+
+<p>在某些情况下就要注意了。</p>
+
+<p>在一些函数的参数中，经常会用到默认值。</p>
+
+<p>如：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="k">def</span> <span class="nf">app</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+</span><span class='line'>    <span class="k">pass</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>我当时的函数是这样的：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="n">chat</span><span class="o">=</span><span class="p">[]</span>
+</span><span class='line'><span class="k">def</span> <span class="nf">app</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="p">[]):</span>
+</span><span class='line'>    <span class="n">chat</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>问题出现了，如果函数没有被传入参数时调用此函数，添加到chat中的pararms都是同一地址，如果在另一个函数中操作了chat中的某一个params，那么chat中所有的params都会相应的发生改变：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="c"># Filename: test2.py</span>
+</span><span class='line'><span class="n">chat</span><span class="o">=</span><span class="p">[]</span>
+</span><span class='line'><span class="k">def</span> <span class="nf">app</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="p">[]):</span>
+</span><span class='line'>    <span class="n">chat</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+</span><span class='line'>    <span class="n">app</span><span class="p">()</span>
+</span><span class='line'><span class="k">print</span> <span class="s">&#39;old:&#39;</span><span class="p">,</span><span class="n">chat</span>
+</span><span class='line'><span class="n">chat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</span><span class='line'><span class="k">print</span> <span class="s">&#39;new:&#39;</span><span class="p">,</span><span class="n">chat</span>
+</span><span class='line'>
+</span><span class='line'><span class="err">$</span> <span class="n">python</span> <span class="n">test2</span><span class="o">.</span><span class="n">py</span>
+</span><span class='line'><span class="n">old</span><span class="p">:</span> <span class="p">[[],</span> <span class="p">[],</span> <span class="p">[]]</span>
+</span><span class='line'><span class="n">new</span><span class="p">:</span> <span class="p">[[</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>本来是想在第一个元素内的数组添加一个1，结果导致其他所有的元素都加入了1。杯具就产生了:-(，浪费了一下午的时间。)]</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[犹豫]]></title>
+    <link href="http://127.0.0.1:4000/blog/2012/02/12/my-hesitate/"/>
+    <updated>2012-02-12T22:16:00+08:00</updated>
+    <id>http://127.0.0.1:4000/blog/2012/02/12/my-hesitate</id>
+    <content type="html"><![CDATA[<p>今天上午，到机场接了同学，下午一个短信发来，“回电”。</p>
+
+<p>电话过去，依然是几个月前的那个人。朋友给我介绍了个人，对方希望我能给他们做一个网站，元旦前，给我讨论过一些需求，我根据项目开出了一个价格，这个价格对我来说是个有着比较大诱惑的数字，但他们提出的是希望春节前能够完成。我回绝了，因为当时公司也忙的要死，而且我预估的时间是在保证质量的情况下能够完成，不想打一个没有用的包票。后来他们说看其他有没能春节做完的，不行再来找我。</p>
+
+<p>年后了，收到“回电”后，我打过去，他们还是希望我能来做他们网站，并且在最近去趟广州与他们谈需。</p>
+
+<p>我最近的情况，在公司负责一个项目（并不参与编码，主要是进度管理和技术支持）、一个手机项目的服务器端开发、一个即时通讯服务器开发，服务器开发可以说就我一个人写。</p>
+
+<p>我比较犹豫是否需要接下那个项目，那样本来身为下班后还兢兢业业的码农，又会增加一份负担。但对于低工资的码农来说，报酬却又是无比的吸引力。</p>
+
+<p>&#8212;&#8212;&#8212;次日分割线&#8212;&#8212;&#8212;</p>
+
+<p>打电话过去回绝了对方，权衡了一些，最近事情太多吧，不想到最后两边都耽误了。毕竟自己也不是很缺钱，认认真真做好自己手上的东西吧，希望能在技术上获取真正有价值的东西。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[对中国计算机教育的看法——兴趣使然]]></title>
+    <link href="http://127.0.0.1:4000/blog/2012/01/07/china-education/"/>
+    <updated>2012-01-07T22:17:00+08:00</updated>
+    <id>http://127.0.0.1:4000/blog/2012/01/07/china-education</id>
+    <content type="html"><![CDATA[<p>今天大学里的一位老师问我在专业课程上的一些问题，主要是想听一下我的意见。这位老师是我在大学的专业课老师，主要也是负责计算机相关专业的教学事宜，并且和我一直保持着联系，之前在学校时她也对教学比较无奈，上了几年课，很多同学对基础的语法都所知甚少。当然不排除学生的个人因素。她也知道在教学上存在比较大的问题，也有心去改变现状。但都没取得比较好的成效。</p>
+
+<p>后来我和她聊到了教学上的problem，她想进行学校里的教学改革。想从我这里得到一些有用的信息，我也提了一些建议。</p>
+
+<p>之前在学校是这样的，一个项目贯穿着整个学期（并不是每个学期），学期末会安排实训任务，这是所谓的大作业，多数学校都差不多是这种模式。说实话，在学习中实践是很重要的，但是我个人比较不看好的就是，那些实训项目都是“XX系统”，名字说出来就觉得让人索然无味，对于学习语言本身，一开始便让学生失去兴趣，这罪过太大了。</p>
+
+<p>对于problem，当然要去找cause。我们其实可以发现，计算机专业很热门，很多人选。如果想让学生学习到编程技能，就要去真正了解到他们为什么要选这门专业。从我身边的同学和朋友得知，填报计算机相关专业的有这么几类人：</p>
+
+<ol>
+<li>喜欢编程，并且大学之前就有学习或想法</li>
+<li>喜欢打游戏，觉得QQ很牛逼，写程序很牛逼，但不了解什么是编程</li>
+<li>觉得学习计算机以后工作很轻松，工资很高</li>
+</ol>
+
+
+<p>第一类人占较少数，基本上都能掌握学习内容，甚至所学内容并不满足于他们；第二类人占绝大多数，更有甚者是为了在大学里能玩电脑；第三类占极少部分可以忽略，而且他们的想法错了。</p>
+
+<p>这样看来，最后的结果是，第一类人学习到了技能并且从事计算机相关工作，第二类人少数几个“懂”编程大部分不会并且几乎没有去从事计算机职业的，第三类人基本上无戏。</p>
+
+<p>其实不难发现，真正提高教学质量的标准就是第二类人大部分学会了编程并且能自己去动手实践（对于计算机专业，实践是唯一真理，对于理论那套就交给理论家们吧 ：D），然后咱们得找准第二类人的追求。</p>
+
+<p>在所有学校里都有这么个情况，刚刚学期开始时满怀抱负，上课个个都是信心满满的样子，这就是第二类人们对编程世界满怀好奇心，不学成不死心的状态。但几个月过去后，几乎都是被乏味的编程过程所一一摧毁。</p>
+
+<p>其实刚开始时满怀信心是因为他们会觉得编程很有趣，然后事实告诉他们的确是“编程很乏味”，其实这很正常，即使是那些大牛们，也可能是做了许许多多自己“觉得有趣”的事才在技术得到提升。所以大学教育（甚至中学教育？）在引导学生的兴趣上，需要下一番功夫。</p>
+
+<p>此文所谈较为肤浅，所谓解铃还需系铃人，教育上的问题还需教育工作者来解决。</p>
+
+<p>PS：在我看来，第一类人并不是在编程能力上有多好，是因为他们已经觉得编程本身就是一种乐趣。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[你好世界 hello world]]></title>
+    <link href="http://127.0.0.1:4000/blog/2012/01/07/hello-word/"/>
+    <updated>2012-01-07T08:40:00+08:00</updated>
+    <id>http://127.0.0.1:4000/blog/2012/01/07/hello-word</id>
+    <content type="html"><![CDATA[<p>你好世界</p>
+]]></content>
+  </entry>
+  
+</feed>
