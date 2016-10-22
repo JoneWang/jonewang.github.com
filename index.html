@@ -1,46 +1,52 @@
 <html>
   <head>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
+    <link rel="stylesheet" href="http://cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.css">
     <style>
-    body {
-      background-color: #b4b4b4;
-    }
-    .main {
-        width: 420px;
-        height: 180px;
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        margin-left: -210px;
-        margin-top: -90px;
-        background-color: #fff;
-        padding: 30px;
-    }
-    .main strong {
-      margin-left: 40px;
-      font-size: 30;
-    }
-    .main li {
-      margin-top: 10px;
-    }
-    .blog {
-      margin-top: 50px;
-      font-size: 20px;
+    .splash {
+      width: 80%;
+      height: 80%;
+      margin: auto;
+      position: absolute;
+      top: 100px;
+      left: 0;
+      bottom: 0;
+      right: 0;
       text-align: center;
+    }
+    .button-black {
+      background: #000; /* this is a light blue */
+      color: #FFF;
+    }
+    .lover-link {
+      color: #E4B9C2;
+    }
+    .friend-link {
+      color: #AAA;
     }
     </style>
   </head>
   <body>
-    <div class="main">
-      <strong>Jone Wang</strong>
-      <ul>
-        <li>Mail: <a href="mailto:i@jone.wang">i@jone.wang</a></li>
-        <li>Github: <a href="http://github.com/JoneWang">Github</a></li>
-      </ul>
-      <div class="blog">
-      >>>
-      <a href="http://notes.jone.wang">Read my blog</a>
-      <<<
-    </div>
-    </div>
+    <div class="splash">
+        <h1 class="splash-head"> JONE WANG </h1>
+        <p class="splash-subhead"> Love create / Love cats / Love coding / Love <a class="lover-link" href="http://weibo.com/p/1005055472593610"> Miaoyu </a>  </p>
+        <br />
+        <p><i class="fa fa-envelope"></i></p>
+        <p class="splash-subhead"> i@jone.wang </p>
+        <br />
+        <p><i class="fa fa-bars"></i></p>
+        <p>
+            <a href="http://purecss.io" class="pure-button pure-button-primary">
+              <i class="fa fa-book"></i>
+              NOTES
+            </a>
+        </p>
+        <p>
+            <a href="http://purecss.io" class="pure-button button-black">
+              <i class="fa fa-github-alt"></i>
+              GITHUB
+            </a>
+        </p>
+      </div>
   </body>
 </html>
